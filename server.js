@@ -34,7 +34,13 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'equb-backend', db: 'mysql' });
 });
 
+const initDB = require('./init_mysql');
+
 const PORT = process.env.PORT || 3002;
-app.listen(() => {
-  console.log(`🚀 Equb Backend running on http://localhost:${PORT}`);
+
+// Initialize Database then start server
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Equb Backend running on http://localhost:${PORT}`);
+  });
 });

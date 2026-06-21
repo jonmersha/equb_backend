@@ -11,16 +11,11 @@ async function initDB() {
       database: process.env.DB_NAME
     });
 
-    console.log("Connected to MySQL DB.");
-
-    // Drop existing tables if they exist
-    await conn.query('DROP TABLE IF EXISTS equb_payments');
-    await conn.query('DROP TABLE IF EXISTS equb_members');
-    await conn.query('DROP TABLE IF EXISTS equbs');
+    console.log("Connected to MySQL DB for initialization.");
 
     // Create equbs table
     await conn.query(`
-      CREATE TABLE equbs (
+      CREATE TABLE IF NOT EXISTS equbs (
         id VARCHAR(50) PRIMARY KEY,
         creatorId VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
@@ -35,11 +30,10 @@ async function initDB() {
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log("Created equbs table.");
 
     // Create equb_members table
     await conn.query(`
-      CREATE TABLE equb_members (
+      CREATE TABLE IF NOT EXISTS equb_members (
         id VARCHAR(50) PRIMARY KEY,
         equbId VARCHAR(50) NOT NULL,
         name VARCHAR(255) NOT NULL,
@@ -54,11 +48,10 @@ async function initDB() {
         FOREIGN KEY (equbId) REFERENCES equbs(id) ON DELETE CASCADE
       )
     `);
-    console.log("Created equb_members table.");
 
     // Create equb_payments table
     await conn.query(`
-      CREATE TABLE equb_payments (
+      CREATE TABLE IF NOT EXISTS equb_payments (
         id INT AUTO_INCREMENT PRIMARY KEY,
         equbId VARCHAR(50) NOT NULL,
         round INT NOT NULL,
@@ -68,9 +61,8 @@ async function initDB() {
         UNIQUE KEY unique_payment (equbId, round, memberId)
       )
     `);
-    console.log("Created equb_payments table.");
 
-    console.log("✅ All required tables created successfully!");
+    console.log("✅ All required tables checked/created successfully!");
 
   } catch (error) {
     console.error("❌ Failed to create tables:", error);
@@ -79,4 +71,9 @@ async function initDB() {
   }
 }
 
-initDB();
+// Export for server.js, but also run directly if called from terminal
+if (require.main === module) {
+  initDB();
+}
+
+module.exports = initDB;
