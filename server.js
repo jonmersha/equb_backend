@@ -35,6 +35,6 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
+app.listen(() => {
   console.log(`🚀 Equb Backend running on http://localhost:${PORT}`);
 });
